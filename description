@@ -1,1 +1,5 @@
 Repository for homework of Python course 
+
+Файлы test_pet_api.py и test_user_api.py содержат кейсы для проверки соответствующих API
+Файл support_steps.py - содержит генераторы тестовых данных
+Файл urls.py - формирует урлы для запросов

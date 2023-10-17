@@ -2,8 +2,9 @@ import pytest
 import requests
 import json
 import resources.urls as urls
+import resources.constants as constants
 import Steps.support_steps as support_steps
-import Steps.create_request_json as create_request_json
+import Steps.create_request_json_steps as create_request_json
 import Steps.request_steps as requests_steps
 import Steps.assert_steps as assert_steps
 
@@ -39,8 +40,10 @@ def test_post_pet(type):
 # проверка создания питомца с невалидными даннми
 @pytest.mark.full_regression
 def test_post_name_negative():
-    # создаем json c невалидным значением поля category.name
-    request = create_request_json.generate_json_pet_incorrect()
+    # создаем json c для создания питомца
+    request = create_request_json.generate_json_pet()
+    # заменяем в нем имя категории на невалидное
+    request["category"]["name"] = []
     # отправляем запрос
     response_post = requests_steps.request_post(urls.url_pet_post, request)
     print("result =", response_post.json())
@@ -58,15 +61,14 @@ def test_post_pet_uploadImage():
     print("result=", response_post.json())
     assert_steps.assert_not_none_id (response_post)
     # работа с файлом (позже вынести файл куда - нибудь в resources)
-    fp = open('/Users/20071554/Desktop/test.txt', 'rb')
-    files = {'file': fp}
+    files = support_steps.open_file(constants.image_pet)
     # отправляем запрос на загрузку файла
     response_post_image = requests_steps.request_post_image(urls.url_pet_post_uploadimage(str(response_post.json()['id'])), files)
     print(response_post_image)
     # проверяем, что ответ содержит статус 200
-    assert_steps.assert_response_has_status (response_post_image, 200)
+    assert_steps.assert_response_has_status(response_post_image, 200)
     # закрываем чтение файла
-    fp.close()
+    support_steps.close_file(files)
 
 # проверка загрузки файла для несуществующего питомца
 @pytest.mark.full_regression
@@ -91,7 +93,7 @@ def test_post_pet_id():
     response_post = requests_steps.request_post(urls.url_pet_post, request)
     print("result=", response_post.json())
     # убеждаемся, что питомец создан, вернулся непустой ID
-    assert_steps.assert_not_none_id (response_post)
+    assert_steps.assert_not_none_id(response_post)
     # изменяем кличку питомца
     newname = support_steps.generate_random_letter_strings(6)
     datamy="name=" + newname +"&status=sold"
@@ -99,7 +101,7 @@ def test_post_pet_id():
     response_post_update = requests_steps.request_post_update(urls.url_pet_get_id(str(response_post.json()['id'])), datamy)
     print ("response_updated =" ,response_post_update.json() )
     # проверяем, что ответ содержит статус 200
-    assert_steps.assert_response_has_status (response_post_update, 200)
+    assert_steps.assert_response_has_status(response_post_update, 200)
     # отправляем запрос на получение данных питомца
     response_get = requests_steps.request_get(urls.url_pet_get_id(str(response_post.json()['id'])))
     print("result get =", response_get.json())
@@ -117,7 +119,6 @@ def test_post_negative_pet_id():
     print("response_updated =", response_post_update.json())
     # проверяем, что ответ содержит статус 404
     assert_steps.assert_response_has_status (response_post_update, 404)
-
 
 #***** Запросы PUT *****
 #проверка возможности изменить кличку питомца череp put
@@ -188,11 +189,12 @@ def test_get_pet_id_negative ():
                          ],
                          ids=["sold", "available"]
                          )
-
 def test_get_by_status(status):
     # создаем питомца с нужным статусом (параметр)
     print(status)
-    request = create_request_json.generate_json_pet_status(status)
+    request = create_request_json.generate_json_pet()
+    # подменяем статус на нужный нам
+    request['status'] = status
     # отправляем запрос
     response_post = requests_steps.request_post(urls.url_pet_post, request)
     print("result=", response_post.json())
@@ -203,7 +205,6 @@ def test_get_by_status(status):
     assert_steps.assert_response_has_status (response, 200)
     assert_steps.assert_equals_response_values(response.json()[0]['status'],status)
     assert_steps.assert_response_contains_text(response.json(),(response_post.json()['name']))
-
 
 # проверка поиска питомцев по заведомо не существующему статусу
 @pytest.mark.smoke_regression

@@ -1,0 +1,9 @@
+Михаил, спасибо за внимательную проверку и советы, код действительно становится заметно проще!
+1. create_request_json.py переименовал бы create_request_json_steps.py DONE 
+2. create_request_json_steps.py, support_steps.py, assert_steps.py вместе сложить в директорию Steps - DONE (Файлы в проекте в PYCHARM  у меня все разложены по папкам, но в GIT были залиты списком - разложила по папкам)
+3. urls.py в resources  - DONE (Файлы в проекте в PYCHARM  у меня все разложены по папкам, но в GIT залиты списком - разложила по папкам)
+4. В create_request_json.py для генерации со случайным именем юзера ты используешь такой вариант generate_json_user_username(username):, лучше генерировать случайный json для username, а потом в тесте просто одной строкой задавать нужный тебе, вот так: request["username"] = "random name»  DONE  ( заодно и "создание питомца с нужным статусом" тоже заменила)
+5. Аналогично для некорректного pet - request = create_request_json.generate_json_pet_incorrect()  - DONE
+6. Попробуй в supporty_steps завести вспомогательную функцию, которая в тесте заменит две эти строки: fp = open('/Users/20071554/Desktop/test.txt', 'rb') files = {'file': fp}  - DONE
+7. def test_post_user_username здесь попробуй генерировать случайные имена из букв и цифр прямо в параметрах  - DONE
+8. И старайся оставлять по одной пустой строке между тестами - DONE
